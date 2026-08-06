@@ -174,7 +174,23 @@ try {
 }
 
 try {
-    $entries = @($zip.Entries | ForEach-Object { $_.FullName })
+    $rawEntries = @($zip.Entries | ForEach-Object { $_.FullName })
+
+    # Some archives carry Windows separators in entry names, which the ZIP
+    # specification does not permit. Normalise before checking so an archive
+    # built by an older script still validates, but say so - it is worth
+    # rebuilding rather than shipping.
+    $entries = @($rawEntries | ForEach-Object { $_ -replace '\\', '/' })
+    $backslashed = @($rawEntries | Where-Object { $_ -like '*\*' })
+    if ($backslashed.Count) {
+        Say "    WARNING: $($backslashed.Count) entries use backslash separators" 'Yellow'
+        Say "    The ZIP spec requires forward slashes. Rebuild with the current" 'Yellow'
+        Say "    tools\build_addon.ps1, which writes spec-compliant paths." 'Yellow'
+    }
+
+    # Entry lookups below use normalised names; keep a map back to the real ones.
+    $entryByNormalised = @{}
+    foreach ($e in $zip.Entries) { $entryByNormalised[($e.FullName -replace '\\', '/')] = $e }
 
     if ($entries -notcontains 'manifest.ini') {
         Stop-With "manifest.ini is not at the root of the archive. NVDA will refuse to install it.`nRebuild with tools\build_addon.ps1."
@@ -195,7 +211,7 @@ try {
     Say "    $($entries.Count) entries, $($ddb.Count) voice database(s), manifest at root" 'Green'
 
     # --- version agreement between tag and shipped manifest ---
-    $me = $zip.Entries | Where-Object { $_.FullName -eq 'manifest.ini' } | Select-Object -First 1
+    $me = $entryByNormalised['manifest.ini']
     $reader = New-Object System.IO.StreamReader($me.Open())
     $shippedManifest = $reader.ReadToEnd()
     $reader.Dispose()
@@ -219,7 +235,7 @@ try {
     foreach ($k in $pairs.Keys) {
         $onDisk = Join-Path $repoRoot $pairs[$k]
         if (-not (Test-Path -LiteralPath $onDisk)) { continue }
-        $entry = $zip.Entries | Where-Object { $_.FullName -eq $k } | Select-Object -First 1
+        $entry = $entryByNormalised[$k]
         if (-not $entry) { $stale += $k; continue }
 
         if ($k -match '\.(py|ini|txt)$') {

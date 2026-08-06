@@ -163,11 +163,63 @@ New-Item -ItemType Directory -Force -Path (Split-Path -Parent $OutFile) | Out-Nu
 if (Test-Path $OutFile) { Remove-Item $OutFile -Force }
 
 Add-Type -AssemblyName System.IO.Compression.FileSystem
-[System.IO.Compression.ZipFile]::CreateFromDirectory(
-    $buildDir,
-    $OutFile,
-    [System.IO.Compression.CompressionLevel]::Optimal,
-    $false)
+
+# Entries are added one at a time rather than with ZipFile::CreateFromDirectory,
+# because on Windows PowerShell 5.1 that helper writes the platform separator
+# into entry names, producing paths like "synthDrivers32\infovox_host.dll".
+# The ZIP specification (APPNOTE 4.4.17.1) requires forward slashes, and tools
+# that follow it - including anything reading the archive on a non-Windows
+# system - will not find those entries. Building the entries by hand lets us
+# normalise the separator and guarantee a spec-compliant archive.
+$prefixLength = $buildDir.TrimEnd('\', '/').Length + 1
+$files = @(Get-ChildItem -LiteralPath $buildDir -Recurse -File -Force)
+
+$archive = [System.IO.Compression.ZipFile]::Open($OutFile, [System.IO.Compression.ZipArchiveMode]::Create)
+try {
+    $i = 0
+    foreach ($f in $files) {
+        $i++
+        $entryName = $f.FullName.Substring($prefixLength) -replace '\\', '/'
+        Write-Progress -Activity 'Compressing' -Status $entryName -PercentComplete (100 * $i / $files.Count)
+        [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
+            $archive, $f.FullName, $entryName,
+            [System.IO.Compression.CompressionLevel]::Optimal) | Out-Null
+    }
+} finally {
+    $archive.Dispose()
+    Write-Progress -Activity 'Compressing' -Completed
+}
+
+# --- verify what we just wrote ------------------------------------------------
+
+Step 6 "Verifying the archive"
+
+$verify = [System.IO.Compression.ZipFile]::OpenRead($OutFile)
+try {
+    $names = @($verify.Entries | ForEach-Object { $_.FullName })
+
+    $backslashed = @($names | Where-Object { $_ -like '*\*' })
+    if ($backslashed.Count) {
+        Fail "$($backslashed.Count) entries use backslash separators. The archive is not spec-compliant."
+    }
+
+    foreach ($needed in 'manifest.ini',
+                        'synthDrivers/infovox330.py',
+                        'synthDrivers32/infovox330.py',
+                        'synthDrivers32/_infovox_sapi4.py',
+                        'synthDrivers32/infovox_host.dll',
+                        'synthDrivers32/Ivx330/Ivx330nt.dll') {
+        if ($names -notcontains $needed) { Fail "the finished archive is missing $needed" }
+    }
+
+    $ddbCountOut = @($names | Where-Object { $_ -like '*.ddb' }).Count
+    if ($ddbCountOut -eq 0) { Fail "the finished archive contains no voice data" }
+
+    Write-Host "    $($names.Count) entries, $ddbCountOut voice database(s), all paths spec-compliant" -ForegroundColor Green
+}
+finally {
+    $verify.Dispose()
+}
 
 $addonMb = [math]::Round(((Get-Item $OutFile).Length / 1MB), 1)
 

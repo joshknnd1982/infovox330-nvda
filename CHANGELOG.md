@@ -24,6 +24,13 @@ All notable changes to this project are recorded here. The format follows
 
 ### Fixed
 
+- **Archives built under Windows PowerShell 5.1 used backslash path separators.**
+  `ZipFile.CreateFromDirectory` writes the platform separator into entry names, producing
+  paths like `synthDrivers32\infovox_host.dll`; the ZIP specification requires forward
+  slashes, and spec-following readers cannot locate those entries. The packager now adds
+  entries individually with normalised names, and verifies the finished archive before
+  reporting success. `publish_release.ps1` accepts either separator so older archives still
+  validate, but warns when it sees backslashes.
 - `build_addon.ps1` now finds the three engine DLLs across several candidate directories
   rather than requiring all of them in one folder. On machines where Infovox was unpacked
   rather than installed, `cryput.dll` commonly sits a level above the other two, which made
