@@ -1,0 +1,21 @@
+# Normalise line endings so the repository is consistent regardless of platform.
+* text=auto eol=lf
+
+# PowerShell is happiest with CRLF on Windows.
+*.ps1 text eol=crlf
+
+# NVDA add-on manifests are read on Windows.
+manifest.ini text eol=crlf
+
+# Binaries must never be line-ending converted.
+*.dll binary
+*.exe binary
+*.ddb binary
+*.phm binary
+*.ivx binary
+*.nvda-addon binary
+*.zip binary
+
+# Keep generated and vendored material out of language statistics and diffs.
+addon/synthDrivers32/_infovox_sapi4.py linguist-vendored
+COPYING linguist-vendored

@@ -1,0 +1,81 @@
+# ============================================================================
+#  Infovox 330 for NVDA - .gitignore
+#
+#  Two categories are excluded here and the distinction matters:
+#
+#    1. Ordinary build output and scratch files.
+#    2. PROPRIETARY Infovox engine binaries and voice data, which must never
+#       be committed. See NOTICE.md. The patterns below are deliberately
+#       broad; if you find yourself adding an exception, stop and re-read
+#       NOTICE.md first.
+# ============================================================================
+
+# --- proprietary: Infovox engine ------------------------------------------
+Ivx330/
+Ivx330nt.dll
+Ivxcb330.exe
+IvxLM330.exe
+IvxVoiceMan.exe
+Sx32w.dll
+cryput.dll
+Demo330.exe
+spchapi.exe
+
+# --- proprietary: voice data ----------------------------------------------
+Voices*Ivx330/
+*.ddb
+*.phm
+*.ivx
+darules.dll
+VoiceDescriptions.txt
+
+# --- proprietary: original distribution media ------------------------------
+autorun.inf
+autostart.exe
+CDSetup.ini
+Setup.exe
+setup.inx
+data1.cab
+data1.hdr
+data2.cab
+data2.hdr
+layout.bin
+ikernel.ex_
+Getting Started with Infovox*.txt
+Att komma i*ng med Infovox*.txt
+What's new*.txt
+
+# --- build output ----------------------------------------------------------
+build/
+dist/
+*.nvda-addon
+infovox330_kit.zip
+
+# --- diagnostics and scratch from the reverse-engineering work -------------
+_ivx_*.txt
+_ivx_wav/
+_diag_report.txt
+_infovox_host.log
+ivxprobe*.exe
+ivxmstest.exe
+ivxdiag.exe
+ivxspeak.exe
+ivxwav.exe
+ivx_infovox_config.reg
+infovox330_driver_fixed.py
+
+# --- Python ----------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# --- editors and OS --------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+desktop.ini
+Desktop.ini
+.DS_Store

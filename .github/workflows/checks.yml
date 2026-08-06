@@ -1,0 +1,107 @@
+name: checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  guard:
+    name: No proprietary material committed
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fail if engine binaries or voice data are present
+        run: |
+          set -euo pipefail
+          # These must never enter the repository. See NOTICE.md.
+          patterns=(
+            '*.ddb' '*.phm' '*.ivx'
+            'Ivx330nt.dll' 'Sx32w.dll' 'cryput.dll' 'darules.dll'
+            '*.nvda-addon'
+          )
+          found=0
+          for p in "${patterns[@]}"; do
+            while IFS= read -r f; do
+              [ -z "$f" ] && continue
+              echo "::error file=$f::proprietary or non-distributable file committed: $f"
+              found=1
+            done < <(git ls-files -- "$p")
+          done
+          if [ "$found" -ne 0 ]; then
+            echo "See NOTICE.md. These files must be supplied by the user at build time."
+            exit 1
+          fi
+          echo "OK - no proprietary material found in the tree."
+
+      - name: Fail if any file exceeds GitHub's 100 MB limit
+        run: |
+          set -euo pipefail
+          big=$(git ls-files | while read -r f; do [ -f "$f" ] && find "$f" -size +100M; done)
+          if [ -n "$big" ]; then
+            echo "::error::files over 100 MB are committed:"
+            echo "$big"
+            exit 1
+          fi
+          echo "OK - no oversized files."
+
+  python:
+    name: Driver syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Byte-compile the driver
+        # The driver imports NVDA-internal modules that only exist inside NVDA,
+        # so it cannot be imported here. Compiling verifies syntax, which is the
+        # failure mode that actually bites during development.
+        run: python -m compileall -q addon/synthDrivers addon/synthDrivers32
+
+      - name: Lint with ruff
+        continue-on-error: true
+        run: |
+          pip install ruff
+          ruff check addon --select E9,F63,F7,F82 --output-format github
+
+  manifest:
+    name: Add-on manifest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Validate manifest.ini
+        run: |
+          python - <<'PY'
+          import configparser, sys, pathlib
+
+          text = pathlib.Path("addon/manifest.ini").read_text(encoding="utf-8")
+          cp = configparser.ConfigParser()
+          cp.read_string("[m]\n" + text)
+          m = cp["m"]
+
+          required = ["name", "summary", "description", "author", "version",
+                      "minimumNVDAVersion", "lastTestedNVDAVersion"]
+          missing = [k for k in required if not m.get(k, "").strip()]
+          if missing:
+              sys.exit(f"manifest.ini missing required keys: {', '.join(missing)}")
+
+          if m["name"].strip() != "infovox330":
+              sys.exit("manifest name must be 'infovox330' to match the driver name")
+
+          for key in ("version", "minimumNVDAVersion", "lastTestedNVDAVersion"):
+              v = m[key].strip()
+              if not all(part.isdigit() for part in v.split(".")):
+                  sys.exit(f"{key} is not a dotted numeric version: {v!r}")
+
+          print("manifest.ini OK")
+          for k in required + ["url"]:
+              print(f"  {k} = {m.get(k, '').strip()}")
+          PY
