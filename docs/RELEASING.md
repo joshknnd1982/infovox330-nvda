@@ -76,9 +76,15 @@ The script computes a SHA-256 of the add-on, writes it to a `.sha256` file and u
 Confirm the round trip before telling anyone the release exists:
 
 ```powershell
-gh release download v1.0.0 --pattern '*.nvda-addon' --dir $env:TEMP
+gh release download v1.0.0 --repo joshknnd1982/infovox330-nvda `
+    --pattern '*.nvda-addon' --dir $env:TEMP --clobber
 Get-FileHash $env:TEMP\infovox330.nvda-addon -Algorithm SHA256
 ```
+
+`--repo` matters here. `gh` works out which repository you mean from the current folder's
+git remote, so without it the command fails with `not a git repository` anywhere outside a
+clone — which is exactly where you tend to be when spot-checking a download. Inside the
+repository you can drop the switch.
 
 A 160 MB upload that silently truncated is worth ruling out.
 

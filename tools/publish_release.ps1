@@ -369,7 +369,9 @@ Say ("    uploading {0:N1} MB - this takes a while and gh shows no progress" -f 
 $r = Run-Gh release upload $tag $Addon $checksumPath --clobber
 if (-not $r.Ok) { Stop-With "Upload failed. Re-run this script to retry; it will reuse the tag and release." }
 
-$url = (Run-GhQuiet release view $tag --json url --jq .url).Output.Trim()
+$url  = (Run-GhQuiet release view $tag --json url --jq .url).Output.Trim()
+$slug = (Run-GhQuiet repo view --json nameWithOwner --jq .nameWithOwner).Output.Trim()
+if (-not $slug) { $slug = '<owner>/<repo>' }
 
 Write-Host ""
 Say "DONE" 'Green'
@@ -380,8 +382,11 @@ if ($Draft) {
     Say "Publish it from the release page when you are ready." 'Yellow'
     Write-Host ""
 }
-Say "Verify the download before telling anyone about it:" 'Cyan'
-Say "  gh release download $tag --pattern '*.nvda-addon' --dir `$env:TEMP"
+Say "Verify the download before telling anyone about it. Note --repo: gh works" 'Cyan'
+Say "out which repository you mean from the current folder's git remote, so" 'Cyan'
+Say "without it these fail anywhere outside a clone." 'Cyan'
+Write-Host ""
+Say "  gh release download $tag --repo $slug --pattern '*.nvda-addon' --dir `$env:TEMP --clobber"
 Say "  Get-FileHash `$env:TEMP\infovox330.nvda-addon -Algorithm SHA256"
 Say "  (should be $hash)"
 Write-Host ""
