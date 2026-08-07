@@ -6,6 +6,11 @@ All notable changes to this project are recorded here. The format follows
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-08-07
+
+Housekeeping and documentation. No change to speech output: the only code removed was
+unreachable, so the driver behaves identically to 1.0.0.
+
 ### Added
 
 - Repository structure for public distribution: documentation set, GPL v2 license text,
@@ -80,7 +85,11 @@ All notable changes to this project are recorded here. The format follows
   now point at `NOTICE.md` for the full position.
 - Add-on manifest now states 11 languages rather than 12, which is the correct count; the
   previous figure double-counted American and British English while listing English once.
-- Manifest `url` now points at the project repository.
+- Manifest `url` now points at the project repository. Both this and the language count were
+  recorded as done in the 1.0.0 development notes but had never actually been applied to
+  `manifest.ini`; they are applied now.
+- `lastTestedNVDAVersion` raised to 2026.1.1. `minimumNVDAVersion` stays at 2026.1.0, which
+  is the first release providing `_bridge.clients.synthDriverHost32`.
 
 ## [1.0.0] - 2026-08-06
 
