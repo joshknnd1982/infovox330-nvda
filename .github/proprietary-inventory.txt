@@ -1,0 +1,34 @@
+addon/infovox330/synthDrivers32/Ivx330/Ivx330nt.dll
+addon/infovox330/synthDrivers32/Ivx330/Sx32w.dll
+addon/infovox330/synthDrivers32/Ivx330/cryput.dll
+addon/infovox330/synthDrivers32/Voices Ivx330/Amrules.ivx
+addon/infovox330/synthDrivers32/Voices Ivx330/Gerules.ivx
+addon/infovox330/synthDrivers32/Voices Ivx330/Swrules.ivx
+addon/infovox330/synthDrivers32/Voices Ivx330/VoiceDescriptions.txt
+addon/infovox330/synthDrivers32/Voices Ivx330/am00.ddb
+addon/infovox330/synthDrivers32/Voices Ivx330/am00.phm
+addon/infovox330/synthDrivers32/Voices Ivx330/am01.ddb
+addon/infovox330/synthDrivers32/Voices Ivx330/am01.phm
+addon/infovox330/synthDrivers32/Voices Ivx330/br00.ddb
+addon/infovox330/synthDrivers32/Voices Ivx330/br00.phm
+addon/infovox330/synthDrivers32/Voices Ivx330/da01.ddb
+addon/infovox330/synthDrivers32/Voices Ivx330/da01.phm
+addon/infovox330/synthDrivers32/Voices Ivx330/darules.dll
+addon/infovox330/synthDrivers32/Voices Ivx330/du00.ddb
+addon/infovox330/synthDrivers32/Voices Ivx330/du00.phm
+addon/infovox330/synthDrivers32/Voices Ivx330/fi00.ddb
+addon/infovox330/synthDrivers32/Voices Ivx330/fi00.phm
+addon/infovox330/synthDrivers32/Voices Ivx330/fr00.ddb
+addon/infovox330/synthDrivers32/Voices Ivx330/ge00.ddb
+addon/infovox330/synthDrivers32/Voices Ivx330/ge01.ddb
+addon/infovox330/synthDrivers32/Voices Ivx330/ic00.ddb
+addon/infovox330/synthDrivers32/Voices Ivx330/ic00.phm
+addon/infovox330/synthDrivers32/Voices Ivx330/it00.ddb
+addon/infovox330/synthDrivers32/Voices Ivx330/it00.phm
+addon/infovox330/synthDrivers32/Voices Ivx330/no00.ddb
+addon/infovox330/synthDrivers32/Voices Ivx330/no01.ddb
+addon/infovox330/synthDrivers32/Voices Ivx330/sp00.ddb
+addon/infovox330/synthDrivers32/Voices Ivx330/sw00.ddb
+addon/infovox330/synthDrivers32/Voices Ivx330/sw00.phm
+addon/infovox330/synthDrivers32/Voices Ivx330/sw01.ddb
+addon/infovox330/synthDrivers32/Voices Ivx330/sw01.phm

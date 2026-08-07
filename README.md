@@ -18,13 +18,20 @@ nothing is written to `HKLM`, and removing the add-on removes every trace of it.
 
 ## What this repository contains
 
-This repository holds **the add-on's source code only**. It does not contain the Infovox
-speech engine or the voice databases, because those remain the copyrighted property of
-Acapela Group (formerly Babel-Infovox AB / Telia Promotor Infovox AB). To produce a
-working add-on you supply those files yourself from your own Infovox 330 media, and the
-build script assembles them together with the code here.
+> **Read [NOTICE.md](NOTICE.md) before cloning.** Alongside this project's own GPL-licensed
+> code, this repository contains the Infovox 330 engine binaries and the complete voice
+> databases. That material is **not** covered by the GPL, is not the author's to license,
+> and remains the copyrighted property of Acapela Group (formerly Babel-Infovox AB / Telia
+> Promotor Infovox AB). Cloning gives you a copy of software neither you nor the author is
+> licensed to distribute. NOTICE.md sets out exactly which files these are and what that
+> means for you.
 
-See [docs/BUILDING.md](docs/BUILDING.md) for the full procedure.
+The GPL covers the driver, the proxy layer, the registry-virtualisation shim, the build
+tooling and the documentation — everything this project actually wrote.
+
+If you hold your own Infovox 330 licence and would rather build from your own media,
+[docs/BUILDING.md](docs/BUILDING.md) describes that route; the build script assembles an
+add-on from an engine folder and a voices folder you supply.
 
 ## Installing a release
 
@@ -34,6 +41,23 @@ build — the short version is: open the file, let NVDA install it and restart, 
 **Infovox 330** under *NVDA menu → Preferences → Settings → Speech*.
 
 The long version, including troubleshooting, is in [docs/INSTALLING.md](docs/INSTALLING.md).
+
+## Known limitations
+
+**Audio ducking is unavailable while Infovox 330 is the active synthesizer.** The
+combo box in *NVDA menu → Preferences → Settings → Audio* disappears, and the ducking
+gesture stops responding. This is intended NVDA behaviour rather than an add-on defect.
+NVDA 2026.1 suspends audio ducking for every synthesizer that runs in the 32-bit synth
+host, because such a driver produces audio in its own process and NVDA cannot duck
+external audio without also ducking its own speech. NVDA's own SAPI 4 and 32-bit SAPI 5
+drivers are affected identically. Selecting any in-process synthesizer, such as eSpeak
+NG, restores the setting. See [nvaccess/nvda#19432](https://github.com/nvaccess/nvda/pull/19432).
+
+**The `useWASAPIForSAPI4` advanced setting has no effect on this add-on.** NVDA offers a
+switch to route SAPI 4 audio through WinMM instead of WASAPI. Infovox 330 always uses the
+WASAPI sink, because the engine only sets its native 16 kHz format when the sink reports
+no format of its own, which the WinMM path does not do. Toggling the setting changes
+nothing here.
 
 ## Background
 

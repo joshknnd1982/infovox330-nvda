@@ -6,10 +6,11 @@ Built add-ons are published on the
 [Releases page](https://github.com/joshknnd1982/infovox330-nvda/releases). Each release
 carries a single `infovox330.nvda-addon` file as an attached asset.
 
-Because the file is roughly 160 MB, it is attached as a release asset rather than committed
-to the repository — GitHub caps files inside a repository at 100 MB, while release assets
-may be up to 2 GB. This means you cannot get the add-on by cloning; you download it from the
-release page, or you build it yourself following [BUILDING.md](BUILDING.md).
+Because the file is roughly 160 MB, it is attached as a release asset rather than committed:
+GitHub caps files inside a repository at 100 MB, while release assets may be up to 2 GB. So
+cloning does not hand you a ready-built `.nvda-addon` — you download it from the release
+page, or you build one following [BUILDING.md](BUILDING.md). (The repository does contain the
+engine and voice files a build needs; see [NOTICE.md](../NOTICE.md) for what that means.)
 
 On the release page, expand the **Assets** section and choose `infovox330.nvda-addon`. Your
 browser may warn about the file type or the size. It is a ZIP archive with a custom
@@ -37,6 +38,18 @@ later.
 You do **not** need Infovox 330 installed on the machine, and you do not need administrator
 rights. That is the entire point of the design: the add-on carries its own engine and serves
 it a synthetic registry from memory.
+
+You also do **not** need the Microsoft SAPI 4 runtime. This surprises people, because the
+engine is a SAPI 4 engine and the original Infovox media ships `spchapi.exe` to install that
+runtime. It is not needed here, for two reasons. `Ivx330nt.dll` is a self-contained
+in-process COM server whose only imports are Windows system libraries and its own bundled
+`Sx32w.dll` — it links against no part of the SAPI 4 runtime, statically or dynamically. And
+the add-on never asks COM for a SAPI 4 object: `infovox_host.dll` calls the engine's
+`DllGetClassObject` entry point directly, and the SAPI 4 interfaces the driver uses are
+vendored as plain `comtypes` definitions in `_infovox_sapi4.py`, which are type descriptions
+rather than code needing a runtime. The audio sink handed to the engine is the add-on's own
+Python object, not the runtime's `MMAudioDest`. Nothing in the speech path touches
+`spchapi.exe`, `Speech.dll` or `xtts50.dll`.
 
 ## Installing
 

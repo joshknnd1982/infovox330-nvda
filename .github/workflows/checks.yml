@@ -8,33 +8,53 @@ on:
 
 jobs:
   guard:
-    name: No proprietary material committed
+    name: Proprietary material inventory
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fail if engine binaries or voice data are present
+      - name: Proprietary set matches the documented inventory
+        # This repository knowingly contains proprietary engine and voice files;
+        # NOTICE.md enumerates them and explains the position. So this step does not
+        # object to their presence. It fails when the *set* changes, which is the case
+        # worth catching: a file added or removed without NOTICE.md being updated to
+        # match. Keeping it red permanently would only teach us to ignore it.
+        #
+        # Note the leading '*' on the filename patterns. A git pathspec without a
+        # wildcard anchors at the repository root, so a bare 'Ivx330nt.dll' silently
+        # matches nothing when the file lives in a subdirectory.
         run: |
           set -euo pipefail
-          # These must never enter the repository. See NOTICE.md.
           patterns=(
             '*.ddb' '*.phm' '*.ivx'
-            'Ivx330nt.dll' 'Sx32w.dll' 'cryput.dll' 'darules.dll'
-            '*.nvda-addon'
+            '*Ivx330nt.dll' '*Sx32w.dll' '*cryput.dll' '*darules.dll'
+            '*VoiceDescriptions.txt'
           )
-          found=0
           for p in "${patterns[@]}"; do
-            while IFS= read -r f; do
-              [ -z "$f" ] && continue
-              echo "::error file=$f::proprietary or non-distributable file committed: $f"
-              found=1
-            done < <(git ls-files -- "$p")
-          done
-          if [ "$found" -ne 0 ]; then
-            echo "See NOTICE.md. These files must be supplied by the user at build time."
+            git ls-files -- "$p"
+          done | sort -u > /tmp/current-inventory.txt
+
+          echo "Proprietary files tracked: $(wc -l < /tmp/current-inventory.txt)"
+          cat /tmp/current-inventory.txt
+
+          if ! diff -u .github/proprietary-inventory.txt /tmp/current-inventory.txt; then
+            echo "::error::The set of proprietary files in this repository has changed."
+            echo "If that is intended, update NOTICE.md to describe it and regenerate"
+            echo ".github/proprietary-inventory.txt. If it is not, remove the files."
             exit 1
           fi
-          echo "OK - no proprietary material found in the tree."
+          echo "OK - matches the inventory documented in NOTICE.md."
+
+      - name: Fail if a built add-on is committed
+        run: |
+          set -euo pipefail
+          found=$(git ls-files -- '*.nvda-addon')
+          if [ -n "$found" ]; then
+            echo "::error::built add-on committed: $found"
+            echo "The built add-on belongs on the Releases page. See docs/RELEASING.md."
+            exit 1
+          fi
+          echo "OK - no built add-on in the tree."
 
       - name: Fail if any file exceeds GitHub's 100 MB limit
         run: |
