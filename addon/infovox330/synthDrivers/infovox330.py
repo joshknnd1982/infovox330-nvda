@@ -1,11 +1,5 @@
-# Infovox 330 for NVDA - 64-bit proxy driver.
-# Copyright (C) 2026 Josh <joshknnd1982@gmail.com>
-# This file is covered by the GNU General Public License, version 2 or later.
-# See the COPYING file in the project root, and NOTICE.md for third-party rights.
-#
-# NVDA runs as a 64-bit process and cannot load the 32-bit Infovox COM engine
-# directly. This proxy launches NVDA's bundled 32-bit synth host and points it
-# at this add-on's own registry-free driver in synthDrivers32/.
+# Infovox 330 - 64-bit proxy. Launches NVDA's bundled 32-bit synth host and
+# points it at this add-on's own reg-free driver in synthDrivers32/.
 import os
 from _bridge.clients.synthDriverHost32.synthDriver import SynthDriverProxy32
 
