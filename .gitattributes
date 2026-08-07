@@ -17,7 +17,7 @@ manifest.ini text eol=crlf
 *.zip binary
 
 # Keep generated and vendored material out of language statistics and diffs.
-addon/synthDrivers32/_infovox_sapi4.py linguist-vendored
+addon/infovox330/synthDrivers32/_infovox_sapi4.py linguist-vendored
 COPYING linguist-vendored
 
 # Uppercase variants - gitattributes patterns are case-sensitive.

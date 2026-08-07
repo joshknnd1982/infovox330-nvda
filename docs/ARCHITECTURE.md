@@ -17,12 +17,14 @@ process boundary.
 
 That is why there are two driver files with the same name:
 
-`addon/synthDrivers/infovox330.py` is loaded by NVDA itself, in the 64-bit process. It is
+`addon/infovox330/synthDrivers/infovox330.py` is loaded by NVDA itself, in the 64-bit
+process. It is
 twenty lines long and does almost nothing. It subclasses `SynthDriverProxy32`, points
 `synthDriver32Path` at the sibling `synthDrivers32` folder, and overrides `check()` to
 additionally confirm that `infovox_host.dll` exists before advertising itself as available.
 
-`addon/synthDrivers32/infovox330.py` is the real driver, loaded by the 32-bit host. This is
+`addon/infovox330/synthDrivers32/infovox330.py` is the real driver, loaded by the 32-bit
+host. This is
 where all the SAPI 4 work happens. Everything below this point in the document concerns that
 file and the shim it calls.
 

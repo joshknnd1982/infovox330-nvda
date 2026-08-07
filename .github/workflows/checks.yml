@@ -60,7 +60,7 @@ jobs:
         # The driver imports NVDA-internal modules that only exist inside NVDA,
         # so it cannot be imported here. Compiling verifies syntax, which is the
         # failure mode that actually bites during development.
-        run: python -m compileall -q addon/synthDrivers addon/synthDrivers32
+        run: python -m compileall -q addon/infovox330/synthDrivers addon/infovox330/synthDrivers32
 
       - name: Lint with ruff
         continue-on-error: true
@@ -82,7 +82,7 @@ jobs:
           python - <<'PY'
           import configparser, sys, pathlib
 
-          text = pathlib.Path("addon/manifest.ini").read_text(encoding="utf-8")
+          text = pathlib.Path("addon/infovox330/manifest.ini").read_text(encoding="utf-8")
           cp = configparser.ConfigParser()
           cp.read_string("[m]\n" + text)
           m = cp["m"]

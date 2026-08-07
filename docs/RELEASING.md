@@ -21,7 +21,7 @@ pwsh -File tools\build_addon.ps1 -Engine "..\Ivx330" -Voices "..\Voices Ivx330"
 pwsh -File tools\publish_release.ps1 -Addon .\dist\infovox330.nvda-addon
 ```
 
-`publish_release.ps1` takes the version from `addon/manifest.ini` unless you pass
+`publish_release.ps1` takes the version from `addon/infovox330/manifest.ini` unless you pass
 `-Version`. It is safe to re-run: an existing tag or release is reused rather than
 duplicated, and assets are replaced rather than rejected, so a failed 160 MB upload is
 recovered by simply running it again.
@@ -60,7 +60,7 @@ missing too.
 
 ## Preparing a version
 
-Keep three things in step: `version` in `addon/manifest.ini`, the heading in
+Keep three things in step: `version` in `addon/infovox330/manifest.ini`, the heading in
 `CHANGELOG.md`, and the tag. Move the `Unreleased` entries under the new version heading and
 date them. Write `docs/release-notes-<version>.md` — the script picks it up automatically,
 and it is the text most people will actually read.

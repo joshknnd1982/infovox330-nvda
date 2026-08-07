@@ -124,8 +124,8 @@ Say "    gh auth : signed in" 'Green'
 
 # --- version, from the manifest unless overridden ---
 
-$manifestPath = Join-Path $repoRoot 'addon\manifest.ini'
-if (-not (Test-Path $manifestPath)) { Stop-With "addon\manifest.ini not found." }
+$manifestPath = Join-Path $repoRoot 'addon\infovox330\manifest.ini'
+if (-not (Test-Path $manifestPath)) { Stop-With "addon\infovox330\manifest.ini not found." }
 $manifestText = Get-Content $manifestPath -Raw
 $manifestVersion = ([regex]::Match($manifestText, '(?m)^\s*version\s*=\s*(.+?)\s*$')).Groups[1].Value.Trim('"', ' ')
 
@@ -225,11 +225,11 @@ try {
     # --- staleness: does the archive carry the committed source? ---
     $stale = @()
     $pairs = @{
-        'manifest.ini'                    = 'addon\manifest.ini'
-        'synthDrivers/infovox330.py'      = 'addon\synthDrivers\infovox330.py'
-        'synthDrivers32/infovox330.py'    = 'addon\synthDrivers32\infovox330.py'
-        'synthDrivers32/_infovox_sapi4.py'= 'addon\synthDrivers32\_infovox_sapi4.py'
-        'synthDrivers32/infovox_host.dll' = 'addon\synthDrivers32\infovox_host.dll'
+        'manifest.ini'                    = 'addon\infovox330\manifest.ini'
+        'synthDrivers/infovox330.py'      = 'addon\infovox330\synthDrivers\infovox330.py'
+        'synthDrivers32/infovox330.py'    = 'addon\infovox330\synthDrivers32\infovox330.py'
+        'synthDrivers32/_infovox_sapi4.py'= 'addon\infovox330\synthDrivers32\_infovox_sapi4.py'
+        'synthDrivers32/infovox_host.dll' = 'addon\infovox330\synthDrivers32\infovox_host.dll'
     }
     $sha = [System.Security.Cryptography.SHA256]::Create()
     foreach ($k in $pairs.Keys) {

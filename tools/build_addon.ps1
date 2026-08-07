@@ -38,12 +38,17 @@ $ErrorActionPreference = 'Stop'
 # --- locate things -----------------------------------------------------------
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$addonSrc = Join-Path $repoRoot 'addon'
+# The add-on payload lives one level down, in addon\infovox330. Everything under
+# that directory becomes the root of the .nvda-addon archive, so manifest.ini
+# lands where NVDA expects it.
+$addonSrc = Join-Path $repoRoot 'addon\infovox330'
 $buildDir = Join-Path $repoRoot 'build\infovox330'
 $distDir  = Join-Path $repoRoot 'dist'
 
-if (-not $Engine)  { $Engine  = Join-Path (Split-Path -Parent $repoRoot) 'Ivx330' }
-if (-not $Voices)  { $Voices  = Join-Path (Split-Path -Parent $repoRoot) 'Voices Ivx330' }
+# The engine and voice data are now committed inside the add-on tree, so default
+# to those copies. -Engine and -Voices still override for out-of-tree media.
+if (-not $Engine)  { $Engine  = Join-Path $addonSrc 'synthDrivers32\Ivx330' }
+if (-not $Voices)  { $Voices  = Join-Path $addonSrc 'synthDrivers32\Voices Ivx330' }
 if (-not $OutFile) { $OutFile = Join-Path $distDir 'infovox330.nvda-addon' }
 
 function Fail($message) {
