@@ -6,13 +6,21 @@
   Infovox 330 engine files and voice data that YOU supply, and produces
   dist\infovox330.nvda-addon.
 
-  Usage, from anywhere:
+  Usage, from the repository root:
 
-      pwsh -File tools\build_addon.ps1 -Engine "C:\path\to\Ivx330" -Voices "C:\path\to\Voices Ivx330"
+      .\build.cmd
 
-  If -Engine and -Voices are omitted the script looks for folders named
-  "Ivx330" and "Voices Ivx330" next to the repository root, which is how the
-  original working folder was laid out.
+  or, calling this script directly:
+
+      powershell -ExecutionPolicy Bypass -File tools\build_addon.ps1
+
+  Runs under Windows PowerShell 5.1; PowerShell 7 is not required.
+
+  If -Engine and -Voices are omitted the script uses the engine and voice data
+  committed inside the add-on tree, under addon\infovox330\synthDrivers32. Pass
+  them only to build from media held elsewhere:
+
+      .\build.cmd -Engine "C:\path\to\Ivx330" -Voices "C:\path\to\Voices Ivx330"
 
   The engine folder must contain, at minimum:
       Ivx330nt.dll      the Infovox 330 SAPI 4 engine
@@ -167,6 +175,14 @@ Step 5 "Packaging into the .nvda-addon archive"
 New-Item -ItemType Directory -Force -Path (Split-Path -Parent $OutFile) | Out-Null
 if (Test-Path $OutFile) { Remove-Item $OutFile -Force }
 
+# Two assemblies, not one. System.IO.Compression.FileSystem provides ZipFile and
+# ZipFileExtensions, but ZipArchive, ZipArchiveMode and CompressionLevel live in
+# System.IO.Compression. .NET Core resolves both implicitly, so loading only the
+# first works under PowerShell 7 and hides the problem. Windows PowerShell 5.1
+# loads neither by default, and PowerShell resolves a [type] literal against the
+# assemblies already loaded - so the script got as far as packaging and then died
+# with "Unable to find type [System.IO.Compression.ZipArchiveMode]".
+Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 # Entries are added one at a time rather than with ZipFile::CreateFromDirectory,

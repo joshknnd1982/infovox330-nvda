@@ -24,10 +24,14 @@
   complete voice data, which are not yours to redistribute. Publishing this
   file is a different decision from publishing the source.
 
-  Usage:
-      pwsh -File tools\publish_release.ps1 -Addon ..\infovox330.nvda-addon
-      pwsh -File tools\publish_release.ps1 -Addon ..\infovox330.nvda-addon -Draft
-      pwsh -File tools\publish_release.ps1 -Version 1.0.1 -Addon .\dist\infovox330.nvda-addon
+  Usage, from the repository root:
+      .\publish.cmd -Addon .\dist\infovox330.nvda-addon
+      .\publish.cmd -Addon .\dist\infovox330.nvda-addon -Draft
+      .\publish.cmd -Version 1.0.1 -Addon .\dist\infovox330.nvda-addon
+
+  Runs under Windows PowerShell 5.1; PowerShell 7 is not required. To call this
+  script directly, use powershell, not pwsh:
+      powershell -ExecutionPolicy Bypass -File tools\publish_release.ps1 -Addon .\dist\infovox330.nvda-addon
 ================================================================================
 #>
 
@@ -165,6 +169,13 @@ if ($addonItem.Length -gt 2GB) {
 
 Step 2 "Validating the archive"
 
+# See the note in build_addon.ps1: ZipFile lives in System.IO.Compression.FileSystem
+# while ZipArchive and friends live in System.IO.Compression, and Windows PowerShell
+# 5.1 loads neither by default. Only ZipFile is referenced by name below, so this
+# script does not currently need the second assembly - it is loaded anyway so that
+# adding a [ZipArchiveMode] or [CompressionLevel] reference later cannot reintroduce
+# the failure.
+Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $zip = $null
 try {

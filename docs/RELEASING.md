@@ -15,10 +15,29 @@ add-on, and why the install instructions send people to the Releases page.
 
 ```powershell
 # 1. build, so the asset matches the source you are about to tag
-pwsh -File tools\build_addon.ps1 -Engine "..\Ivx330" -Voices "..\Voices Ivx330"
+.\build.cmd
 
 # 2. tag, create the release, upload the asset and its checksum
-pwsh -File tools\publish_release.ps1 -Addon .\dist\infovox330.nvda-addon
+.\publish.cmd -Addon .\dist\infovox330.nvda-addon
+```
+
+`build.cmd` and `publish.cmd` are thin wrappers around the scripts in `tools\`. They exist
+because the direct invocation is long enough to be error-prone, and because the scripts run
+under Windows PowerShell 5.1 — the version that ships with Windows. Nothing here needs
+PowerShell 7, so do not reach for `pwsh`; on a default Windows install it is not there.
+
+`build.cmd` with no arguments builds from the engine and voice data committed under
+`addon\infovox330\synthDrivers32`. Pass `-Engine` and `-Voices` only when building from
+other media:
+
+```powershell
+.\build.cmd -Engine "D:\Ivx330" -Voices "D:\Voices Ivx330"
+```
+
+To call the scripts directly instead, use `powershell`, not `pwsh`:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\build_addon.ps1
 ```
 
 `publish_release.ps1` takes the version from `addon/infovox330/manifest.ini` unless you pass

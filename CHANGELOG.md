@@ -39,6 +39,10 @@ unreachable, so the driver behaves identically to 1.0.0.
 - `docs/INSTALLING.md` now states explicitly that the Microsoft SAPI 4 runtime is not
   required. The engine imports no part of it, and the add-on reaches the engine through
   `DllGetClassObject` rather than through COM, so `spchapi.exe` never needs to be run.
+- `build.cmd` and `publish.cmd` in the repository root, thin wrappers around the scripts in
+  `tools\`. The direct invocation was long enough to be a reliable source of typos, and both
+  wrappers pin the interpreter to `powershell` so the PowerShell 7 confusion below cannot
+  recur.
 
 ### Removed
 
@@ -62,6 +66,14 @@ unreachable, so the driver behaves identically to 1.0.0.
   entries individually with normalised names, and verifies the finished archive before
   reporting success. `publish_release.ps1` accepts either separator so older archives still
   validate, but warns when it sees backslashes.
+- **The build failed at the packaging step under Windows PowerShell 5.1** with `Unable to
+  find type [System.IO.Compression.ZipArchiveMode]`. The script loaded
+  `System.IO.Compression.FileSystem`, which supplies `ZipFile` and `ZipFileExtensions`, but
+  `ZipArchive`, `ZipArchiveMode` and `CompressionLevel` live in `System.IO.Compression`,
+  a separate assembly. .NET Core resolves both implicitly, so the omission was invisible
+  under PowerShell 7 and only surfaced on the interpreter that actually ships with Windows.
+  Both assemblies are now loaded, in `publish_release.ps1` as well as a precaution. The
+  failure came after the 193 MB voice copy, so it cost a full build to discover each time.
 - `build_addon.ps1` now finds the three engine DLLs across several candidate directories
   rather than requiring all of them in one folder. On machines where Infovox was unpacked
   rather than installed, `cryput.dll` commonly sits a level above the other two, which made
@@ -83,6 +95,15 @@ unreachable, so the driver behaves identically to 1.0.0.
 - `README.md` and `docs/INSTALLING.md` no longer describe the repository as holding source
   code alone, which stopped being true when the engine and voice data were committed. Both
   now point at `NOTICE.md` for the full position.
+- **`docs/RELEASING.md` and both script headers told you to run the build with `pwsh`**,
+  which is PowerShell 7 and is not present on a default Windows install. Neither script uses
+  any PowerShell 7 syntax, and the packager was explicitly fixed for Windows PowerShell 5.1,
+  so the instruction was wrong rather than the requirement. They now say `powershell`.
+- `docs/RELEASING.md` also passed `-Engine "..\Ivx330" -Voices "..\Voices Ivx330"` to the
+  build, paths from the original working-folder layout that no longer exist. The script has
+  defaulted to the in-tree copies since the engine and voice data were committed, so the
+  documented command failed on a clean checkout. `build_addon.ps1`'s own header described
+  those obsolete defaults too, contradicting its code.
 - Add-on manifest now states 11 languages rather than 12, which is the correct count; the
   previous figure double-counted American and British English while listing English once.
 - Manifest `url` now points at the project repository. Both this and the language count were
