@@ -14,20 +14,22 @@ nothing is written to `HKLM`, and removing the add-on removes every trace of it.
 | **Languages** | 11 (Danish, Dutch, English, Finnish, French, German, Icelandic, Italian, Norwegian, Spanish, Swedish) |
 | **Engine** | Infovox 330, diphone concatenation, 32-bit SAPI 4 |
 | **Requires** | NVDA 2026.1 or later, 64-bit Windows |
-| **License** | GPL v2 or later — see [COPYING](COPYING) and [NOTICE.md](NOTICE.md) |
+| **License** | MIT — see [LICENSE](LICENSE); the NVDA-derived driver files stay GPL v2 or later, see [NOTICE.md](NOTICE.md) |
 
 ## What this repository contains
 
-> **Read [NOTICE.md](NOTICE.md) before cloning.** Alongside this project's own GPL-licensed
-> code, this repository contains the Infovox 330 engine binaries and the complete voice
-> databases. That material is **not** covered by the GPL, is not the author's to license,
-> and remains the copyrighted property of Acapela Group (formerly Babel-Infovox AB / Telia
-> Promotor Infovox AB). Cloning gives you a copy of software neither you nor the author is
-> licensed to distribute. NOTICE.md sets out exactly which files these are and what that
+> **Read [NOTICE.md](NOTICE.md) before cloning.** Alongside this project's own code, this
+> repository contains the Infovox 330 engine binaries and the complete voice databases.
+> That material is **not** covered by the MIT License or the GPL, is not the author's to
+> license, and remains the copyrighted property of Acapela Group (formerly Babel-Infovox AB /
+> Telia Promotor Infovox AB). Cloning gives you a copy of software neither you nor the author
+> is licensed to distribute. NOTICE.md sets out exactly which files these are and what that
 > means for you.
 
-The GPL covers the driver, the proxy layer, the registry-virtualisation shim, the build
-tooling and the documentation — everything this project actually wrote.
+The MIT License covers the registry-virtualisation shim, the build tooling and the
+documentation. The driver files (the 32-bit driver, its SAPI 4 interface definitions and the
+64-bit proxy) stay under the GNU General Public License, because the driver is derived from
+NVDA's own `sapi4.py`; [NOTICE.md](NOTICE.md) lists them.
 
 If you hold your own Infovox 330 licence and would rather build from your own media,
 [docs/BUILDING.md](docs/BUILDING.md) describes that route; the build script assembles an
